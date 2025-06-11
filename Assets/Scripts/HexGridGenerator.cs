@@ -81,7 +81,7 @@ public class HexGridGenerator3D : MonoBehaviour
         Vector3 worldPos = localPos + transform.position;
 
         GameObject ball = bulletPool.Get();
-        Ball ballComp = ball.GetComponent<Ball>();
+        BallController ballComp = ball.GetComponent<BallController>();
         ballComp.Init(colorsController.GetRandomColor(), bulletPool);
 
         ball.transform.position = worldPos;
