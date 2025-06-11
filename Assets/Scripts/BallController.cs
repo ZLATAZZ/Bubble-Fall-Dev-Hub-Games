@@ -34,8 +34,11 @@ public class BallController : MonoBehaviour
         transform.SetParent(GameObject.Find("HexGrid").transform);
     }
 
-    public void MoveForward()
+    public void Shoot(Vector3 direction, float force)
     {
-        transform.position += Vector3.forward * 1f * Time.deltaTime;
+        Rigidbody rb = GetComponent<Rigidbody>();
+        rb.isKinematic = false; // включаем физику
+        rb.velocity = direction.normalized * force;
     }
+
 }
