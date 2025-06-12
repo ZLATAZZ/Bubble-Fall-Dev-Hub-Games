@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class BallController : MonoBehaviour
@@ -5,8 +7,16 @@ public class BallController : MonoBehaviour
     public delegate void BallEvent();
     public event BallEvent OnBallAttached;
 
-    public Color color;
     private ObjectPool pool;
+    public Vector2Int GridPosition { get; set; }
+
+    private Color color;
+    public Color Color => color; // защищённый доступ
+
+    public void SetGridPosition(Vector2Int pos)
+    {
+        GridPosition = pos;
+    }
 
     public void Init(Color newColor, ObjectPool pool)
     {
@@ -17,28 +27,42 @@ public class BallController : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("Ball") || collision.gameObject.CompareTag("Wall"))
+        if (collision.gameObject.CompareTag("Ball") || collision.gameObject.CompareTag("Wall") || collision.gameObject.CompareTag("Ceiling"))
         {
-            // Прилепиться к ближайшей позиции
             AttachToGrid();
-
-            OnBallAttached?.Invoke();
         }
     }
 
     void AttachToGrid()
     {
-        // TODO: Реализовать прикрепление к сетке
-        GetComponent<Rigidbody>().velocity = Vector3.zero;
-        GetComponent<Rigidbody>().isKinematic = true;
-        transform.SetParent(GameObject.Find("HexGrid").transform);
+        Rigidbody rb = GetComponent<Rigidbody>();
+        rb.isKinematic = true;
+        rb.velocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        rb.constraints = RigidbodyConstraints.FreezeAll;
+
+        // Получаем ближайшую координату в гекс-сетке
+        Vector2Int gridPos = GridManager.Instance.GetNearestHexCoord(transform.position);
+        Vector3 snappedPos = GridManager.Instance.GetWorldPosition(gridPos);
+
+        transform.position = snappedPos;
+        SetGridPosition(gridPos);
+
+        // Регистрируем мяч
+        GridManager.Instance.RegisterBall(this, gridPos);
+
+        // Проверка на совпадения (кластер)
+        BallClusterManager.Instance.CheckAndRemoveCluster(gridPos);
+
+        // Вызываем ивент
+        OnBallAttached?.Invoke();
     }
 
     public void Shoot(Vector3 direction, float force)
     {
         Rigidbody rb = GetComponent<Rigidbody>();
-        rb.isKinematic = false; // включаем физику
+        rb.constraints = RigidbodyConstraints.None; // Сбрасываем заморозку
+        rb.isKinematic = false;
         rb.velocity = direction.normalized * force;
     }
-
 }

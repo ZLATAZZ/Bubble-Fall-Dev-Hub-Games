@@ -21,9 +21,6 @@ public class ColorsController : MonoBehaviour
             case Colors.Green: _color = Color.green; break;
             case Colors.Blue: _color = Color.blue; break;
             case Colors.Yellow: _color = Color.yellow; break;
-            case Colors.Orange: _color = new Color(1f, 0.65f, 0f); break;
-            case Colors.Purple: _color = new Color(0.5f, 0f, 0.5f); break;
-            case Colors.Pink: _color = new Color(1f, 0.75f, 0.8f); break;
             default: _color = Color.white; break;
         }
     }

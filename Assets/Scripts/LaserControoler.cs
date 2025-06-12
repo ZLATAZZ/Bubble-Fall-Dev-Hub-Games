@@ -7,6 +7,10 @@ public class LaserController : MonoBehaviour
     public float laserLength = 10f; // Длина луча
     public float followStrength = 0.5f; // Насколько сильно изгибается за мышью
 
+    private Vector3 _laserDirection;
+
+    public Vector3 LaserDirection { get => _laserDirection;}
+
     void Update()
     {
         // 1. Первая точка - исходная
@@ -30,6 +34,8 @@ public class LaserController : MonoBehaviour
         // 6. Вторая точка — направление + длина
         Vector3 endPoint = startPoint + blendedDir * laserLength;
         endPoint.y = -1f;
+        _laserDirection = (endPoint - startPoint).normalized;
+        _laserDirection.y = 0f;
 
         // 7. Рисуем линию
         lineRenderer.SetPosition(0, startPoint);

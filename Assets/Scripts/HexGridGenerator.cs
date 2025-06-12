@@ -84,8 +84,12 @@ public class HexGridGenerator3D : MonoBehaviour
         BallController ballComp = ball.GetComponent<BallController>();
         ballComp.Init(colorsController.GetRandomColor(), bulletPool);
 
+
         ball.transform.position = worldPos;
         ball.transform.SetParent(transform);
+
+        GridManager.Instance.RegisterBall(ballComp, new Vector2Int(x, z));
+
     }
 
 
