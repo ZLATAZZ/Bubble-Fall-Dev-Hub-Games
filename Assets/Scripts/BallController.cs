@@ -41,12 +41,11 @@ public class BallController : MonoBehaviour
         rb.angularVelocity = Vector3.zero;
         rb.constraints = RigidbodyConstraints.FreezeAll;
 
+        gameObject.transform.SetParent(PlayerShooter.Instance._gridParent.transform);
+
         // Получаем ближайшую координату в гекс-сетке
         Vector2Int gridPos = GridManager.Instance.GetNearestHexCoord(transform.position);
         Vector3 snappedPos = GridManager.Instance.GetWorldPosition(gridPos);
-
-        transform.position = snappedPos;
-        SetGridPosition(gridPos);
 
         // Регистрируем мяч
         GridManager.Instance.RegisterBall(this, gridPos);
@@ -60,6 +59,7 @@ public class BallController : MonoBehaviour
 
     public void Shoot(Vector3 direction, float force)
     {
+
         Rigidbody rb = GetComponent<Rigidbody>();
         rb.constraints = RigidbodyConstraints.None; // Сбрасываем заморозку
         rb.isKinematic = false;

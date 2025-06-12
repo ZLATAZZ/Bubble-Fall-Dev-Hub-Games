@@ -6,10 +6,21 @@ public class PlayerShooter : MonoBehaviour
     public Transform shootPoint;
     public ObjectPool ballsPool; 
     public float shootForce = 10f;
+    public GameObject _gridParent;
     [SerializeField] private LaserController _laser;
     [SerializeField] private ColorsController colorsController;
     GameObject ballGO;
+    public static PlayerShooter Instance { get; private set; }
 
+    public int matchCount = 3;
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+            Destroy(gameObject);
+        else
+            Instance = this;
+    }
 
     void Update()
     {
