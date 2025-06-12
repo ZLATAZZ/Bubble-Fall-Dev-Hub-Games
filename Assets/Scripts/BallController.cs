@@ -11,6 +11,8 @@ public class BallController : MonoBehaviour
     public Vector2Int GridPosition { get; set; }
 
     private Color color;
+
+
     public Color Color => color; // защищённый доступ
 
     public void SetGridPosition(Vector2Int pos)
@@ -51,11 +53,22 @@ public class BallController : MonoBehaviour
         GridManager.Instance.RegisterBall(this, gridPos);
 
         // Проверка на совпадения (кластер)
-        BallClusterManager.Instance.CheckAndRemoveCluster(gridPos);
+        StartCoroutine(DelayedClusterCheck(gridPos));
+
 
         // Вызываем ивент
         OnBallAttached?.Invoke();
     }
+
+    IEnumerator DelayedClusterCheck(Vector2Int gridPos)
+    {
+        yield return new WaitUntil(() => GetComponent<Rigidbody>().IsSleeping());
+        yield return new WaitForSeconds(0.05f);
+
+        BallClusterManager.Instance.CheckAndRemoveCluster(gridPos);
+    }
+
+
 
     public void Shoot(Vector3 direction, float force)
     {

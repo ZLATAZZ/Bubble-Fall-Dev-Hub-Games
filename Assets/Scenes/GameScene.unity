@@ -167,6 +167,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   radius: 0.2805023
+  gridWidth: 10
+  gridHeight: 10
 --- !u!1 &263708671
 GameObject:
   m_ObjectHideFlags: 0
@@ -439,9 +441,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shootPoint: {fileID: 1803345131}
   ballsPool: {fileID: 1125145148}
-  shootForce: 20
+  shootForce: 30
+  _gridParent: {fileID: 263708671}
   _laser: {fileID: 1803345133}
   colorsController: {fileID: 1231684505}
+  matchCount: 3
 --- !u!1 &1125145146
 GameObject:
   m_ObjectHideFlags: 0
@@ -821,6 +825,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf67067910e168e46a91f0fbb509d91d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  matchCount: 3
 --- !u!1 &2043421457
 GameObject:
   m_ObjectHideFlags: 0

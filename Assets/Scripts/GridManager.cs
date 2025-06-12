@@ -10,6 +10,11 @@ public class GridManager : MonoBehaviour
     [SerializeField] private float radius = 0.5f;
     private float hexWidth;
     private float hexHeight;
+    [SerializeField] private int gridWidth = 10;
+    [SerializeField] private int gridHeight = 10;
+
+    public int GridWidth => gridWidth;
+    public int GridHeight => gridHeight;
 
     private void Awake()
     {
@@ -126,4 +131,15 @@ public class GridManager : MonoBehaviour
 
         return neighbors;
     }
+
+    public List<Vector2Int> GetAllBallCoords()
+    {
+        List<Vector2Int> coords = new List<Vector2Int>();
+        foreach (var kvp in grid)
+        {
+            coords.Add(kvp.Key);
+        }
+        return coords;
+    }
+
 }
