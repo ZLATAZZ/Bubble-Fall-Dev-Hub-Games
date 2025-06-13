@@ -39,9 +39,6 @@ public class BallController : MonoBehaviour
     {
         Rigidbody rb = GetComponent<Rigidbody>();
         rb.isKinematic = true;
-        rb.velocity = Vector3.zero;
-        rb.angularVelocity = Vector3.zero;
-        rb.constraints = RigidbodyConstraints.FreezeAll;
 
         gameObject.transform.SetParent(PlayerShooter.Instance._gridParent.transform);
 
@@ -63,7 +60,7 @@ public class BallController : MonoBehaviour
     IEnumerator DelayedClusterCheck(Vector2Int gridPos)
     {
         yield return new WaitUntil(() => GetComponent<Rigidbody>().IsSleeping());
-        yield return new WaitForSeconds(0.05f);
+        yield return new WaitForSeconds(0.01f);
 
         BallClusterManager.Instance.CheckAndRemoveCluster(gridPos);
     }
