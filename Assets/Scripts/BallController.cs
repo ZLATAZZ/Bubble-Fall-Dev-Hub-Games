@@ -71,7 +71,6 @@ public class BallController : MonoBehaviour
     {
 
         Rigidbody rb = GetComponent<Rigidbody>();
-        rb.constraints = RigidbodyConstraints.None; // —брасываем заморозку
         rb.isKinematic = false;
         rb.velocity = direction.normalized * force;
     }

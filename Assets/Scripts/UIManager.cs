@@ -1,24 +1,32 @@
+using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
+[DefaultExecutionOrder(-1)]
 public class UIManager : MonoBehaviour
 {
     public static UIManager Instance { get; private set; }
 
     [Header("Score UI")]
-    public Text currentScoreText;
-    public Text bestScoreText;
+    public TextMeshProUGUI bestScoreText;
 
     [Header("Settings UI")]
     public Slider volumeSlider;
-    public Text volumeValueText;
+    public TextMeshProUGUI volumeValueText;
 
     private void Awake()
     {
+        Application.targetFrameRate = 60;
+
         if (Instance != null && Instance != this)
+        {
             Destroy(gameObject);
-        else
-            Instance = this;
+            return;
+        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject); 
     }
 
     private void Start()
@@ -26,7 +34,27 @@ public class UIManager : MonoBehaviour
         LoadUIFromSave();
     }
 
-    public void UpdateScoreUI(int score)
+    public void LoadScene(int sceneIndex)
+    {
+        SceneManager.LoadScene(sceneIndex);
+    }
+
+    public void PauseGame()
+    {
+        Time.timeScale = 0f;
+    }
+
+    public void ResumeGame()
+    {
+        Time.timeScale = 1f;  
+    }
+
+    public void QuitApp()
+    {
+        Application.Quit();
+    }
+
+    public void UpdateScoreUI(int score, TextMeshProUGUI currentScoreText)
     {
         currentScoreText.text = $"Score: {score}";
     }

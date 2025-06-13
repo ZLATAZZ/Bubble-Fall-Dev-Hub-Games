@@ -41,17 +41,24 @@ public class BallClusterManager : MonoBehaviour
 
         if (sameColorBalls.Count >= matchCount)
         {
+            // Добавляем очки за лопнувшие
+            ScoreManager.Instance.AddPopPoints(sameColorBalls.Count);
+            SaveManager.Instance.Save();
+
             foreach (var coord in sameColorBalls)
             {
                 BallController ball = GridManager.Instance.GetBallAt(coord);
-                if (ball != null && ball.Color == targetColor) // <-- добавил двойную проверку
+                if (ball != null && ball.Color == targetColor)
                 {
                     Destroy(ball.gameObject);
-                    DropFloatingBalls();
                     GridManager.Instance.UnregisterBall(coord);
                 }
             }
+
+            // Потом роняем осыпавшиеся
+            DropFloatingBalls();
         }
+
     }
 
 
@@ -98,20 +105,18 @@ public class BallClusterManager : MonoBehaviour
     {
         var allBalls = GridManager.Instance.GetAllBallCoords();
         HashSet<Vector2Int> connectedToTop = new HashSet<Vector2Int>();
-
         Queue<Vector2Int> queue = new Queue<Vector2Int>();
+        int droppedCount = 0;
 
-        // Инициализируем верхний ряд (например, z == 0 или самый верхний видимый ряд)
         foreach (var coord in allBalls)
         {
-            if (coord.y == 0) // или z == 0, зависит от твоей оси
+            if (coord.y == 0)
             {
                 queue.Enqueue(coord);
                 connectedToTop.Add(coord);
             }
         }
 
-        // BFS — находим все шары, соединённые с верхом
         while (queue.Count > 0)
         {
             Vector2Int current = queue.Dequeue();
@@ -125,7 +130,6 @@ public class BallClusterManager : MonoBehaviour
             }
         }
 
-        // Все остальные — не соединены, удаляем/роняем
         foreach (var coord in allBalls)
         {
             if (!connectedToTop.Contains(coord))
@@ -135,18 +139,28 @@ public class BallClusterManager : MonoBehaviour
                 {
                     GridManager.Instance.UnregisterBall(coord);
 
-                    // Падающий шар — отпускаем Rigidbody
                     Rigidbody rb = ball.GetComponent<Rigidbody>();
                     rb.isKinematic = false;
                     rb.useGravity = true;
                     rb.constraints = RigidbodyConstraints.None;
 
-                    ball.transform.SetParent(null); // отпустить из родителя
-                    Destroy(ball.gameObject, 2f); // удалить через 2 сек (или через ObjectPool.Return(ball))
+                    ball.transform.SetParent(null);
+                    Destroy(ball.gameObject, 2f);
+
+                    droppedCount++;
                 }
             }
         }
+
+        if (droppedCount > 0)
+        {
+            ScoreManager.Instance.AddPopPoints(droppedCount);
+            SaveManager.Instance.Save();
+        }
+            
+
     }
+
 
 
 }
