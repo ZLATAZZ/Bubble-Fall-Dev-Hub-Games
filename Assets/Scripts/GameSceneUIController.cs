@@ -23,7 +23,7 @@ public class GameSceneUIController : MonoBehaviour
 
     private void UpdateCurrentScore()
     {
-        _currentScore.text = ScoreManager.Instance.CurrentScore.ToString();
+        _currentScore.text = "Score: " + ScoreManager.Instance.CurrentScore.ToString();
     }
 
     private void CallButtonsMethods()

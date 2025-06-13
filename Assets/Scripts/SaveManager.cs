@@ -5,7 +5,8 @@ using UnityEngine;
 public class SaveData
 {
     public int bestScore = 0;
-    public float volume = 1.0f;
+    public float musicVolume = 1.0f;
+    public float sfxVolume = 1.0f;
 }
 
 public class SaveManager : MonoBehaviour
@@ -47,7 +48,7 @@ public class SaveManager : MonoBehaviour
         else
         {
             CurrentData = new SaveData();
-            Save(); // создать первый раз
+            Save(); // создать файл при первом запуске
         }
     }
 

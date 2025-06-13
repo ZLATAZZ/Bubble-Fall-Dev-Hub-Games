@@ -9,7 +9,7 @@ public class LaserController : MonoBehaviour
 
     private Vector3 _laserDirection;
 
-    public Vector3 LaserDirection { get => _laserDirection;}
+    public Vector3 LaserDirection { get => _laserDirection; }
 
     void Update()
     {
@@ -42,3 +42,5 @@ public class LaserController : MonoBehaviour
         lineRenderer.SetPosition(1, endPoint);
     }
 }
+
+

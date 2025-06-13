@@ -20,11 +20,11 @@ public class GridManager : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
-            Destroy(gameObject);
             return;
         }
 
         Instance = this;
+        DontDestroyOnLoad(gameObject);
 
         // Вычисление размеров гексагона
         hexWidth = radius * 2f * 0.866f; // cos(30°)
