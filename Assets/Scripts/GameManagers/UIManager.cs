@@ -29,7 +29,6 @@ public class UIManager : MonoBehaviour
 
         if (Instance != null && Instance != this)
         {
-            Destroy(gameObject);
             return;
         }
 
@@ -39,6 +38,7 @@ public class UIManager : MonoBehaviour
 
     private void Start()
     {
+        
         LoadUIFromSave();
     }
 

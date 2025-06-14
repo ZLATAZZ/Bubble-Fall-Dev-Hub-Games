@@ -6,8 +6,6 @@ using UnityEngine;
 /// </summary>
 public class BallController : MonoBehaviour
 {
-    public delegate void BallEvent();
-    public event BallEvent OnBallAttached;
 
     private ObjectPool _pool;
     private Color _color;
@@ -40,11 +38,12 @@ public class BallController : MonoBehaviour
             SoundManager.Instance.PlayBallHit();
             AttachToGrid();
         }
-
         if (collision.gameObject.CompareTag("Finish"))
         {
+            Debug.Log("Collided100");
             GameSceneUIController.Instance.GameOver();
         }
+
     }
 
     /// <summary>
@@ -70,7 +69,6 @@ public class BallController : MonoBehaviour
         // Вместо запуска корутины тут вызываем метод менеджера, который запустит корутину
         BallClusterManager.Instance.StartClusterCheckAfterSleep(this, gridPos);
 
-        OnBallAttached?.Invoke();
     }
 
     /// <summary>

@@ -1208,6 +1208,8 @@ MonoBehaviour:
   _mainSource: {fileID: 352290298}
   _reflectSound: {fileID: 0}
   _laserFireSound: {fileID: 0}
+  _hitSound: {fileID: 0}
+  _gameOver: {fileID: 0}
   _backgroundMusic: {fileID: 8300000, guid: 0ae67eedefa46c045b8ca3c868820d48, type: 3}
 --- !u!1 &633175207
 GameObject:
@@ -1455,15 +1457,15 @@ RectTransform:
   m_GameObject: {fileID: 889365988}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 10.438428, y: 3.3115294, z: 4.289824}
+  m_LocalScale: {x: 5.46902, y: 0.34436208, z: 2.3613005}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1504503616}
-  m_Father: {fileID: 1053226525}
+  m_Father: {fileID: 1907451014}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 549}
+  m_AnchorMin: {x: 0.5, y: 1}
+  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchoredPosition: {x: -22.005116, y: 34.4}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &889365990
@@ -1898,7 +1900,6 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 103721303}
-  - {fileID: 889365989}
   - {fileID: 1907451014}
   - {fileID: 1034624962}
   - {fileID: 958052284}
@@ -3827,7 +3828,8 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1.9086471, y: 9.616417, z: 1.8167208}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 889365989}
   m_Father: {fileID: 1053226525}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -3887,6 +3889,18 @@ MonoBehaviour:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 1
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1606721005}
+        m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
+        m_MethodName: ResumeGame
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
