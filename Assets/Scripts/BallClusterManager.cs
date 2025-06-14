@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,8 +9,6 @@ public class BallClusterManager : MonoBehaviour
     public int matchCount = 3;
 
     private HashSet<Vector2Int> removedThisFrame = new HashSet<Vector2Int>();
-
-   
 
     private void Awake()
     {
@@ -24,24 +23,50 @@ public class BallClusterManager : MonoBehaviour
         removedThisFrame.Clear(); // очищаем в конце кадра
     }
 
+    /// <summary>
+    /// Запускает проверку и удаление кластера после того, как шар остановится (корутина запускается здесь, где объект активен)
+    /// </summary>
+    public void StartClusterCheckAfterSleep(BallController ball, Vector2Int gridPos)
+    {
+        StartCoroutine(ClusterCheckCoroutine(ball, gridPos));
+    }
+
+    private IEnumerator ClusterCheckCoroutine(BallController ball, Vector2Int gridPos)
+    {
+        float timeout = 3f;  // 3 секунды максимум
+        float timer = 0f;
+
+        Rigidbody rb = ball.GetComponent<Rigidbody>();
+
+        while (!rb.IsSleeping() && timer < timeout)
+        {
+            yield return null;
+            timer += Time.deltaTime;
+        }
+
+        // Даже если не заснул, подождём ещё чуть-чуть, чтоб физика устаканилась
+        yield return new WaitForSeconds(0.05f);
+
+        CheckAndRemoveCluster(gridPos);
+    }
+
 
     public void CheckAndRemoveCluster(Vector2Int startCoords)
     {
         BallController startBall = GridManager.Instance.GetBallAt(startCoords);
         if (startBall == null) return;
 
-        
         Color targetColor = startBall.Color;
 
         var sameColorBalls = FindConnectedBalls(startCoords, targetColor);
 
         if (removedThisFrame.Contains(startCoords))
             return;
+
         removedThisFrame.UnionWith(sameColorBalls);
 
         if (sameColorBalls.Count >= matchCount)
         {
-            // Добавляем очки за лопнувшие
             ScoreManager.Instance.AddPopPoints(sameColorBalls.Count);
             SaveManager.Instance.Save();
 
@@ -50,18 +75,14 @@ public class BallClusterManager : MonoBehaviour
                 BallController ball = GridManager.Instance.GetBallAt(coord);
                 if (ball != null && ball.Color == targetColor)
                 {
-                    Destroy(ball.gameObject);
+                    ball.Deactivate();
                     GridManager.Instance.UnregisterBall(coord);
                 }
             }
 
-            // Потом роняем осыпавшиеся
             DropFloatingBalls();
         }
-
     }
-
-
 
     public void CheckAroundCluster(Vector2Int center)
     {
@@ -71,7 +92,6 @@ public class BallClusterManager : MonoBehaviour
             CheckAndRemoveCluster(neighbor);
         }
     }
-
 
     private HashSet<Vector2Int> FindConnectedBalls(Vector2Int startCoords, Color targetColor)
     {
@@ -145,7 +165,7 @@ public class BallClusterManager : MonoBehaviour
                     rb.constraints = RigidbodyConstraints.None;
 
                     ball.transform.SetParent(null);
-                    Destroy(ball.gameObject, 2f);
+                    ball.Deactivate();
 
                     droppedCount++;
                 }
@@ -157,10 +177,5 @@ public class BallClusterManager : MonoBehaviour
             ScoreManager.Instance.AddPopPoints(droppedCount);
             SaveManager.Instance.Save();
         }
-            
-
     }
-
-
-
 }

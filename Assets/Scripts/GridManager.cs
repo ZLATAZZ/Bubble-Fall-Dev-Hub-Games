@@ -1,17 +1,21 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// ћенеджер гекс-сетки, отслеживает расположение шаров на игровом поле.
+/// </summary>
 public class GridManager : MonoBehaviour
 {
     public static GridManager Instance { get; private set; }
 
-    private Dictionary<Vector2Int, BallController> grid = new Dictionary<Vector2Int, BallController>();
+    private Dictionary<Vector2Int, BallController> grid = new();
 
     [SerializeField] private float radius = 0.5f;
-    private float hexWidth;
-    private float hexHeight;
     [SerializeField] private int gridWidth = 10;
     [SerializeField] private int gridHeight = 10;
+
+    private float hexWidth;
+    private float hexHeight;
 
     public int GridWidth => gridWidth;
     public int GridHeight => gridHeight;
@@ -19,23 +23,22 @@ public class GridManager : MonoBehaviour
     private void Awake()
     {
         if (Instance != null && Instance != this)
-        {
             return;
-        }
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
-        // ¬ычисление размеров гексагона
-        hexWidth = radius * 2f * 0.866f; // cos(30∞)
+        hexWidth = radius * 2f * 0.866f; // 0.866 = cos(30∞)
         hexHeight = radius * 2f;
     }
 
-    // ѕреобразует мировую позицию в координаты гекс-сетки
+    /// <summary>
+    /// ѕреобразует мировую позицию в координаты гекс-сетки.
+    /// </summary>
     public Vector2Int GetNearestHexCoord(Vector3 worldPos)
     {
         float x = worldPos.x / hexWidth;
-        float z = -worldPos.z / (hexHeight * 0.75f); // учЄт вертикального смещени€
+        float z = -worldPos.z / (hexHeight * 0.75f);
 
         int gridZ = Mathf.RoundToInt(z);
         int gridX = Mathf.RoundToInt(x - (gridZ % 2 == 0 ? 0 : 0.5f));
@@ -43,7 +46,9 @@ public class GridManager : MonoBehaviour
         return new Vector2Int(gridX, gridZ);
     }
 
-    // ѕреобразует координаты гекс-сетки в мировую позицию
+    /// <summary>
+    /// ѕреобразует координаты гекс-сетки в мировую позицию.
+    /// </summary>
     public Vector3 GetWorldPosition(Vector2Int gridPos)
     {
         float x = gridPos.x * hexWidth;
@@ -51,80 +56,59 @@ public class GridManager : MonoBehaviour
             x += hexWidth / 2f;
 
         float z = -gridPos.y * (hexHeight * 0.75f);
-
         return new Vector3(x, 0f, z);
     }
 
+    /// <summary>
+    /// –егистрирует шар на указанных координатах.
+    /// </summary>
     public void RegisterBall(BallController ball, Vector2Int coords)
     {
         ball.SetGridPosition(coords);
-        if (!grid.ContainsKey(coords))
-        {
-            grid.Add(coords, ball);
-        }
-        else
-        {
-            grid[coords] = ball; // перезаписываем если уже есть
-        }
+        grid[coords] = ball;
     }
 
+    /// <summary>
+    /// ”дал€ет шар с указанных координат.
+    /// </summary>
     public void UnregisterBall(Vector2Int coords)
     {
-        if (grid.ContainsKey(coords))
-        {
-            grid.Remove(coords);
-        }
+        grid.Remove(coords);
     }
 
-    public bool HasBallAt(Vector2Int coords)
-    {
-        return grid.ContainsKey(coords);
-    }
+    public bool HasBallAt(Vector2Int coords) => grid.ContainsKey(coords);
 
     public BallController GetBallAt(Vector2Int coords)
     {
-        grid.TryGetValue(coords, out BallController ball);
+        grid.TryGetValue(coords, out var ball);
         return ball;
     }
 
-    public Dictionary<Vector2Int, BallController> GetAllBalls()
-    {
-        return grid;
-    }
+    public Dictionary<Vector2Int, BallController> GetAllBalls() => grid;
 
-    // ¬озвращает соседей по 6 направлени€м гекс-сетки
+    /// <summary>
+    /// ¬озвращает соседние координаты с шарами в 6 направлени€х.
+    /// </summary>
     public List<Vector2Int> GetNeighbors(Vector2Int center)
     {
-        List<Vector2Int> neighbors = new List<Vector2Int>();
-
-        // четный или нечетный р€д вли€ет на смещение
+        List<Vector2Int> neighbors = new();
         bool isOddRow = Mathf.Abs(center.y) % 2 == 1;
 
-        Vector2Int[] evenOffsets = new Vector2Int[]
-        {
-            new Vector2Int(-1,  0),
-            new Vector2Int(-1, -1),
-            new Vector2Int( 0, -1),
-            new Vector2Int( 1,  0),
-            new Vector2Int( 0,  1),
-            new Vector2Int(-1,  1)
+        Vector2Int[] evenOffsets = {
+            new(-1,  0), new(-1, -1), new(0, -1),
+            new(1,  0), new(0,  1), new(-1, 1)
         };
 
-        Vector2Int[] oddOffsets = new Vector2Int[]
-        {
-            new Vector2Int(-1,  0),
-            new Vector2Int( 0, -1),
-            new Vector2Int( 1, -1),
-            new Vector2Int( 1,  0),
-            new Vector2Int( 1,  1),
-            new Vector2Int( 0,  1)
+        Vector2Int[] oddOffsets = {
+            new(-1,  0), new(0, -1), new(1, -1),
+            new(1,  0), new(1,  1), new(0,  1)
         };
 
-        Vector2Int[] offsets = isOddRow ? oddOffsets : evenOffsets;
+        var offsets = isOddRow ? oddOffsets : evenOffsets;
 
         foreach (var offset in offsets)
         {
-            Vector2Int neighbor = center + offset;
+            var neighbor = center + offset;
             if (grid.ContainsKey(neighbor))
                 neighbors.Add(neighbor);
         }
@@ -132,14 +116,11 @@ public class GridManager : MonoBehaviour
         return neighbors;
     }
 
+    /// <summary>
+    /// ¬озвращает все координаты, где наход€тс€ шары.
+    /// </summary>
     public List<Vector2Int> GetAllBallCoords()
     {
-        List<Vector2Int> coords = new List<Vector2Int>();
-        foreach (var kvp in grid)
-        {
-            coords.Add(kvp.Key);
-        }
-        return coords;
+        return new List<Vector2Int>(grid.Keys);
     }
-
 }

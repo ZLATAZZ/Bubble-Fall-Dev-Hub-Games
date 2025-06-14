@@ -9,23 +9,30 @@ public class LaserController : MonoBehaviour
 
     private Vector3 _laserDirection;
 
+    /// <summary>
+    /// Текущее направление лазера (в горизонтальной плоскости).
+    /// </summary>
     public Vector3 LaserDirection { get => _laserDirection; }
 
+
+    /// <summary>
+    /// Обновляет визуализацию и направление лазера.
+    /// </summary>
     void Update()
     {
         // 1. Первая точка - исходная
         Vector3 startPoint = laserOrigin.position;
 
-        // 2. Получаем позицию мыши в мире (на той же плоскости, что и laserOrigin)
+        // 2. Позиция мыши в мире (на той же плоскости, что и laserOrigin)
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         Plane plane = new Plane(laserOrigin.forward, laserOrigin.position);
         plane.Raycast(ray, out float enter);
         Vector3 mouseWorldPos = ray.GetPoint(enter);
 
-        // 3. Считаем направление от старта до мыши
+        // 3. Направление от старта до мыши
         Vector3 toMouse = (mouseWorldPos - startPoint).normalized;
 
-        // 4. Получаем направление вперёд
+        // 4. Направление вперёд
         Vector3 forward = laserOrigin.forward;
 
         // 5. Интерполируем между направлением вперёд и направлением к мыши
@@ -37,7 +44,7 @@ public class LaserController : MonoBehaviour
         _laserDirection = (endPoint - startPoint).normalized;
         _laserDirection.y = 0f;
 
-        // 7. Рисуем линию
+        // 7. Линия лазера
         lineRenderer.SetPosition(0, startPoint);
         lineRenderer.SetPosition(1, endPoint);
     }

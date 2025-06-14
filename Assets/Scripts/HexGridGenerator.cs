@@ -12,100 +12,99 @@ public class HexGridGenerator3D : MonoBehaviour
         public Color color;
     }
 
-    public GameObject ballPrefab;
-    public ObjectPool bulletPool;
+    [Header("Prefabs & Pool")]
+    [SerializeField] private GameObject ballPrefab;
+    [SerializeField] private ObjectPool bulletPool;
 
-    public float radius = 0.5f;
-    public float moveSpeed = 0.5f;
-
-    public List<Shape> shapes = new List<Shape>();
-    [SerializeField] private int cols = 10;
+    [Header("Grid Settings")]
+    [SerializeField] private int columns = 10;
     [SerializeField] private int rows = 10;
+    [SerializeField] private float spawnInterval = 2f;
+    [SerializeField] private float moveSpeed = 0.5f;
 
-    public float spawnInterval = 2f;
-    private float spawnTimer;
-    private int topRowZ;
+    [Header("References")]
+    [SerializeField] private ColorsController colorsController;
 
-    public ColorsController colorsController;
+    [Header("Debug")]
+    [SerializeField] private bool drawGizmos = false;
 
-    void Start()
+    private float spawnTimer = 0f;
+    private float radius;
+    private int currentTopRowZ = 0;
+
+    private void Start()
     {
-        radius = CalculateRadiusToFit();
-        CenterGrid(cols, rows);
-
-        topRowZ = 0;
-
-        Debug.Log(topRowZ);
-
+        radius = CalculateOptimalRadius();
+        CenterGrid(columns, rows);
     }
 
-    void Update()
+    private void Update()
+    {
+        MoveGridDownward();
+        HandleSpawning();
+    }
+
+    private void MoveGridDownward()
     {
         transform.position += Vector3.back * moveSpeed * Time.deltaTime;
-        
+    }
 
+    private void HandleSpawning()
+    {
         spawnTimer += Time.deltaTime;
         if (spawnTimer >= spawnInterval)
         {
-            SpawnTopRow();
+            SpawnRow(currentTopRowZ);
+            currentTopRowZ--;
             spawnTimer = 0f;
         }
     }
 
-    float CalculateRadiusToFit()
+    private float CalculateOptimalRadius()
     {
-        int maxCols = 10;
         float screenWidth = 2f * Camera.main.orthographicSize * Screen.width / Screen.height;
-        float xOffset = screenWidth / (maxCols - 0.5f);
-        return xOffset / (2f * 0.866f);
+        float xOffset = screenWidth / (columns - 0.5f);
+        return xOffset / (2f * 0.866f); // 0.866 = cos(30°) for hex spacing
     }
 
-
-    void SpawnTopRow()
+    private void SpawnRow(int rowZ)
     {
-
-        for (int x = 0; x < cols; x++)
+        for (int x = 0; x < columns; x++)
         {
-            SpawnBall(x, topRowZ);
+            SpawnBall(x, rowZ);
         }
-
-        topRowZ--;
     }
 
-
-    void SpawnBall(int x, int z)
+    private void SpawnBall(int col, int row)
     {
-        
+        Vector3 localPosition = GetHexWorldPosition(col, row);
+        Vector3 worldPosition = localPosition + transform.position;
 
-        Vector3 localPos = HexToWorldPosition(x, z);
-        Vector3 worldPos = localPos + transform.position;
+        GameObject ballGO = bulletPool.Get();
+        BallController ball = ballGO.GetComponent<BallController>();
 
-        GameObject ball = bulletPool.Get();
-        BallController ballComp = ball.GetComponent<BallController>();
-        ballComp.Init(colorsController.GetRandomColor(), bulletPool);
+        ball.Init(colorsController.GetRandomColor(), bulletPool);
+        ballGO.transform.position = worldPosition;
+        ballGO.transform.SetParent(transform);
 
-
-        ball.transform.position = worldPos;
-        ball.transform.SetParent(transform);
-
-        GridManager.Instance.RegisterBall(ballComp, new Vector2Int(x, z));
-
+        GridManager.Instance.RegisterBall(ball, new Vector2Int(col, row));
     }
 
-
-    Vector3 HexToWorldPosition(int x, int z)
+    private Vector3 GetHexWorldPosition(int col, int row)
     {
-        float xOffset = radius * 2f * 0.866f;
-        float zOffset = radius * 1.5f;
+        float xOffset = radius * 2f * 0.866f; // Horizontal distance
+        float zOffset = radius * 1.5f;        // Vertical distance
 
-        float xPos = x * xOffset;
-        if (Mathf.Abs(z) % 2 == 1) xPos += xOffset / 2f;
-        float zPos = -z * zOffset;
+        float xPos = col * xOffset;
+        if (Mathf.Abs(row) % 2 == 1)
+            xPos += xOffset / 2f;
+
+        float zPos = -row * zOffset;
+
         return new Vector3(xPos, 0f, zPos);
     }
 
-
-    void CenterGrid(int cols, int rows)
+    private void CenterGrid(int cols, int rows)
     {
         float xOffset = radius * 2f * 0.866f;
         float zOffset = radius * 1.5f;
@@ -113,7 +112,25 @@ public class HexGridGenerator3D : MonoBehaviour
         float totalWidth = cols * xOffset;
         float totalHeight = rows * zOffset;
 
-        transform.position = new Vector3(-totalWidth / 2f + xOffset / 2f, 0f, totalHeight / 2f - zOffset / 2f);
+        transform.position = new Vector3(
+            -totalWidth / 2f + xOffset / 2f,
+            0f,
+            totalHeight / 2f - zOffset / 2f
+        );
     }
 
+    private void OnDrawGizmos()
+    {
+        if (!drawGizmos || !Application.isPlaying) return;
+
+        Gizmos.color = Color.green;
+        for (int x = 0; x < columns; x++)
+        {
+            for (int z = 0; z < rows; z++)
+            {
+                Vector3 pos = GetHexWorldPosition(x, z) + transform.position;
+                Gizmos.DrawWireSphere(pos, radius * 0.9f);
+            }
+        }
+    }
 }

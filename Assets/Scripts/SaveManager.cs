@@ -13,7 +13,7 @@ public class SaveManager : MonoBehaviour
 {
     public static SaveManager Instance { get; private set; }
 
-    public SaveData CurrentData { get; private set; }
+    public SaveData CurrentData { get; private set; } = new SaveData();
 
     private string savePath;
 
@@ -32,33 +32,71 @@ public class SaveManager : MonoBehaviour
         Load();
     }
 
+    /// <summary>
+    /// Сохраняет текущие данные в файл JSON
+    /// </summary>
     public void Save()
     {
-        string json = JsonUtility.ToJson(CurrentData, true);
-        File.WriteAllText(savePath, json);
+        if (CurrentData == null)
+        {
+            Debug.LogError("Попытка сохранить пустые данные.");
+            return;
+        }
+
+        try
+        {
+            string json = JsonUtility.ToJson(CurrentData, true);
+            File.WriteAllText(savePath, json);
+        }
+        catch (IOException e)
+        {
+            Debug.LogError($"Ошибка при сохранении данных: {e.Message}");
+        }
     }
 
+    /// <summary>
+    /// Загружает данные из файла, либо создает новый файл при первом запуске
+    /// </summary>
     public void Load()
     {
         if (File.Exists(savePath))
         {
-            string json = File.ReadAllText(savePath);
-            CurrentData = JsonUtility.FromJson<SaveData>(json);
+            try
+            {
+                string json = File.ReadAllText(savePath);
+                CurrentData = JsonUtility.FromJson<SaveData>(json) ?? new SaveData();
+            }
+            catch (IOException e)
+            {
+                Debug.LogError($"Ошибка при загрузке данных: {e.Message}");
+                CurrentData = new SaveData();
+            }
         }
         else
         {
             CurrentData = new SaveData();
-            Save(); // создать файл при первом запуске
+            Save(); // Создание файла при первом запуске
         }
     }
 
+    /// <summary>
+    /// Обновляет лучший счёт, если новый больше текущего
+    /// </summary>
     public void TryUpdateBestScore(int score)
     {
         if (score > CurrentData.bestScore)
         {
             CurrentData.bestScore = score;
             Save();
-            UIManager.Instance.UpdateBestScoreUI(score);
+
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.UpdateBestScoreUI(score);
+            }
+            else
+            {
+                Debug.LogWarning("UIManager.Instance не найден — невозможно обновить UI.");
+            }
         }
     }
 }

@@ -1,39 +1,51 @@
+using System;
 using UnityEngine;
 
+/// <summary>
+/// Управляет выбором и получением цветов по enum.
+/// </summary>
 public class ColorsController : MonoBehaviour
 {
-    private Color _color;
-    private Colors currentColorEnum;
+    private Color _currentColor;
+    private Colors _currentColorEnum;
 
+    /// <summary>
+    /// Возвращает случайный цвет и сохраняет его в контроллере.
+    /// </summary>
     public Color GetRandomColor()
     {
-        int enumLength = System.Enum.GetNames(typeof(Colors)).Length;
-        currentColorEnum = (Colors)Random.Range(0, enumLength);
-        UpdateColor();
-        return _color;
+        Array values = Enum.GetValues(typeof(Colors));
+        _currentColorEnum = (Colors)values.GetValue(UnityEngine.Random.Range(0, values.Length));
+        _currentColor = GetColorFromEnum(_currentColorEnum);
+        return _currentColor;
     }
 
-    private void UpdateColor()
+    /// <summary>
+    /// Преобразует значение перечисления Colors в Unity Color.
+    /// </summary>
+    private Color GetColorFromEnum(Colors colorEnum)
     {
-        switch (currentColorEnum)
+        return colorEnum switch
         {
-            case Colors.Red: _color = Color.red; break;
-            case Colors.Green: _color = Color.green; break;
-            case Colors.Blue: _color = Color.blue; break;
-            case Colors.Yellow: _color = Color.yellow; break;
-            default: _color = Color.white; break;
-        }
+            Colors.Red => Color.red,
+            Colors.Green => Color.green,
+            Colors.Blue => Color.blue,
+            Colors.Yellow => Color.yellow,
+            _ => Color.white,
+        };
     }
+
+    public Color CurrentColor => _currentColor;
+    public Colors CurrentColorEnum => _currentColorEnum;
 }
 
-
+/// <summary>
+/// Доступные игровые цвета.
+/// </summary>
 public enum Colors
 {
     Red,
     Green,
     Blue,
-    Yellow,
-    Orange,
-    Purple,
-    Pink
+    Yellow
 }

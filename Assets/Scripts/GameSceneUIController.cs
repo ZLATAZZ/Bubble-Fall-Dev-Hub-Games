@@ -1,19 +1,20 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+///  онтроллер UI сцены игры: обновление счЄта и обработка кнопок паузы/возобновлени€/выхода.
+/// </summary>
 public class GameSceneUIController : MonoBehaviour
 {
-    [SerializeField] private Button _pauseButton;
-    [SerializeField] private Button _resumeButton;
-    [SerializeField] private Button _returnButton;
-    [SerializeField] private TextMeshProUGUI _currentScore;
+    [SerializeField] private Button pauseButton;
+    [SerializeField] private Button resumeButton;
+    [SerializeField] private Button returnButton;
+    [SerializeField] private TextMeshProUGUI currentScoreText;
 
     private void Start()
     {
-        CallButtonsMethods();
+        SetupButtonListeners();
     }
 
     private void Update()
@@ -23,20 +24,20 @@ public class GameSceneUIController : MonoBehaviour
 
     private void UpdateCurrentScore()
     {
-        _currentScore.text = "Score: " + ScoreManager.Instance.CurrentScore.ToString();
+        if (ScoreManager.Instance != null)
+            currentScoreText.text = $"Score: {ScoreManager.Instance.CurrentScore}";
     }
 
-    private void CallButtonsMethods()
+    private void SetupButtonListeners()
     {
-        if (UIManager.Instance != null)
+        if (UIManager.Instance == null)
         {
-            _pauseButton.onClick.AddListener(UIManager.Instance.PauseGame);
-            _resumeButton.onClick.AddListener(UIManager.Instance.ResumeGame);
-            _returnButton.onClick.AddListener(() => UIManager.Instance.LoadScene(0));
+            Debug.LogWarning("UIManager.Instance is null Ч кнопки не будут работать");
+            return;
         }
-        else
-        {
-            Debug.LogWarning("UIManager.Instance is null Ч кнопка не будет работать");
-        }
+
+        pauseButton.onClick.AddListener(UIManager.Instance.PauseGame);
+        resumeButton.onClick.AddListener(UIManager.Instance.ResumeGame);
+        returnButton.onClick.AddListener(() => UIManager.Instance.LoadScene(0));
     }
 }
