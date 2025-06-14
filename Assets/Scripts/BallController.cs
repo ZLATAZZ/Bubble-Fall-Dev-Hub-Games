@@ -43,7 +43,7 @@ public class BallController : MonoBehaviour
 
         if (collision.gameObject.CompareTag("Finish"))
         {
-            // ћожно что-то добавить при попадании в "финиш"
+            GameSceneUIController.Instance.GameOver();
         }
     }
 
