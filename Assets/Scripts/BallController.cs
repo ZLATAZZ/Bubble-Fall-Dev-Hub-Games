@@ -73,5 +73,7 @@ public class BallController : MonoBehaviour
         Rigidbody rb = GetComponent<Rigidbody>();
         rb.isKinematic = false;
         rb.velocity = direction.normalized * force;
+        SoundManager.Instance.PlayLaserFire();
+        EffectManager.Instance.SpawnReflect(gameObject.transform.position, direction);
     }
 }
